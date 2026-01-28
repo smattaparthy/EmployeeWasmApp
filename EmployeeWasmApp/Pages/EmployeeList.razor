@@ -1,0 +1,56 @@
+﻿@page "/employee-list"
+@using EmployeeWasmApp.Services
+@inject EmployeeStore Store
+@inject NavigationManager Nav
+
+<h3>Employee List</h3>
+
+@if (Store.Employees.Count == 0)
+{
+    <p>No employees added yet.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>LAN</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Store.Employees)
+            {
+                <tr>
+                    <td>@e.EmployeeId</td>
+                    <td>@e.FirstName @e.LastName</td>
+                    <td>@e.EmailAddress</td>
+                    <td>@e.LanId</td>
+                    <td>@e.Location</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-info"
+                                @onclick="() => ViewEmployee(e.Id)">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await Store.LoadAsync();
+    }
+
+    private void ViewEmployee(Guid id)
+    {
+        Nav.NavigateTo("/employee-details/" + id);
+    }
+}

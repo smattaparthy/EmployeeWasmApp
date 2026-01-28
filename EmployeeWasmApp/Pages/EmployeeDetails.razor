@@ -1,0 +1,42 @@
+﻿@page "/employee-details/{Id:guid}"
+@using YourApp.Models
+@using EmployeeWasmApp.Services
+@inject EmployeeStore Store
+@inject NavigationManager Nav
+
+<h3>Employee Details</h3>
+
+@if (employee is null)
+{
+    <p>Employee not found.</p>
+}
+else
+{
+    <div class="card p-3">
+        <div><b>Employee ID:</b> @employee.EmployeeId</div>
+        <div><b>Name:</b> @employee.FirstName @employee.LastName</div>
+        <div><b>Email:</b> @employee.EmailAddress</div>
+        <div><b>LAN:</b> @employee.LanId</div>
+        <div><b>Location:</b> @employee.Location</div>
+
+        <button class="btn btn-secondary mt-3" @onclick="GoBack">
+            Back
+        </button>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private EmployeeInput? employee;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Store.LoadAsync();   // because you're using LocalStorage
+        employee = Store.GetById(Id);
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/employee-list");
+    }
+}
