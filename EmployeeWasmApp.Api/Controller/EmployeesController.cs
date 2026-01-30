@@ -45,3 +45,13 @@ public class Employee
     public DateTime? StartDate { get; set; }
     public DateTime? SeparationDate { get; set; }
 }
+using EmployeeWasmApp.Infrastructure.Entities;
+
+namespace EmployeeWasmApp.Infrastructure.Repositories;
+
+public interface IEmployeeRepository
+{
+    Task<List<Employee>> GetAllAsync(CancellationToken ct = default);
+    Task<Employee?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<Employee> AddAsync(Employee employee, CancellationToken ct = default);
+}
