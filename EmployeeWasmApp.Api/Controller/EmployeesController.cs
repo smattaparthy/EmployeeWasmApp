@@ -45,29 +45,31 @@ public class Employee
     public DateTime? StartDate { get; set; }
     public DateTime? SeparationDate { get; set; }
 }
-using EmployeeWasmApp.Infrastructure.Data;
-using EmployeeWasmApp.Infrastructure.Entities;
-using Microsoft.EntityFrameworkCore;
+namespace EmployeeWasmApp.Infrastructure.Integrations;
 
-namespace EmployeeWasmApp.Infrastructure.Repositories;
-
-public class SqlEmployeeRepository : IEmployeeRepository
+public interface IEmployeeDirectoryClient
 {
-    private readonly AppDbContext _db;
+    Task<string?> LookupEmailAsync(string lanId, CancellationToken ct = default);
+}
 
-    public SqlEmployeeRepository(AppDbContext db) => _db = db;
 
-    public Task<List<Employee>> GetAllAsync(CancellationToken ct = default)
-        => _db.Employees.AsNoTracking().OrderByDescending(e => e.StartDate).ToListAsync(ct);
 
-    public Task<Employee?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct);
 
-    public async Task<Employee> AddAsync(Employee employee, CancellationToken ct = default)
+namespace EmployeeWasmApp.Infrastructure.Integrations;
+
+public class EmployeeDirectoryClient : IEmployeeDirectoryClient
+{
+    private readonly HttpClient _http;
+
+    public EmployeeDirectoryClient(HttpClient http) => _http = http;
+
+    public async Task<string?> LookupEmailAsync(string lanId, CancellationToken ct = default)
     {
-        _db.Employees.Add(employee);
-        await _db.SaveChangesAsync(ct);
-        return employee;
+        // Example: GET /directory/email/{lanId}
+        var resp = await _http.GetAsync($"/directory/email/{lanId}", ct);
+        if (!resp.IsSuccessStatusCode) return null;
+
+        return await resp.Content.ReadAsStringAsync(ct);
     }
 }
 
