@@ -45,13 +45,29 @@ public class Employee
     public DateTime? StartDate { get; set; }
     public DateTime? SeparationDate { get; set; }
 }
+using EmployeeWasmApp.Infrastructure.Data;
 using EmployeeWasmApp.Infrastructure.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeWasmApp.Infrastructure.Repositories;
 
-public interface IEmployeeRepository
+public class SqlEmployeeRepository : IEmployeeRepository
 {
-    Task<List<Employee>> GetAllAsync(CancellationToken ct = default);
-    Task<Employee?> GetByIdAsync(Guid id, CancellationToken ct = default);
-    Task<Employee> AddAsync(Employee employee, CancellationToken ct = default);
+    private readonly AppDbContext _db;
+
+    public SqlEmployeeRepository(AppDbContext db) => _db = db;
+
+    public Task<List<Employee>> GetAllAsync(CancellationToken ct = default)
+        => _db.Employees.AsNoTracking().OrderByDescending(e => e.StartDate).ToListAsync(ct);
+
+    public Task<Employee?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => _db.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct);
+
+    public async Task<Employee> AddAsync(Employee employee, CancellationToken ct = default)
+    {
+        _db.Employees.Add(employee);
+        await _db.SaveChangesAsync(ct);
+        return employee;
+    }
 }
+
