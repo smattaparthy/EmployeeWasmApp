@@ -45,3 +45,27 @@ public class Employee
     public DateTime? StartDate { get; set; }
     public DateTime? SeparationDate { get; set; }
 }
+using EmployeeWasmApp.Infrastructure.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace EmployeeWasmApp.Infrastructure.Data.Configurations;
+
+public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
+{
+    public void Configure(EntityTypeBuilder<Employee> builder)
+    {
+        builder.ToTable("Employees");
+
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.EmployeeId)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        builder.Property(x => x.EmailAddress)
+            .HasMaxLength(200);
+
+        builder.HasIndex(x => x.EmployeeId).IsUnique();
+    }
+
