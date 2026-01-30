@@ -45,31 +45,4 @@ public class Employee
     public DateTime? StartDate { get; set; }
     public DateTime? SeparationDate { get; set; }
 }
-namespace EmployeeWasmApp.Infrastructure.Integrations;
-
-public interface IEmployeeDirectoryClient
-{
-    Task<string?> LookupEmailAsync(string lanId, CancellationToken ct = default);
-}
-
-
-
-
-namespace EmployeeWasmApp.Infrastructure.Integrations;
-
-public class EmployeeDirectoryClient : IEmployeeDirectoryClient
-{
-    private readonly HttpClient _http;
-
-    public EmployeeDirectoryClient(HttpClient http) => _http = http;
-
-    public async Task<string?> LookupEmailAsync(string lanId, CancellationToken ct = default)
-    {
-        // Example: GET /directory/email/{lanId}
-        var resp = await _http.GetAsync($"/directory/email/{lanId}", ct);
-        if (!resp.IsSuccessStatusCode) return null;
-
-        return await resp.Content.ReadAsStringAsync(ct);
-    }
-}
 
